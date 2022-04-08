@@ -14,7 +14,7 @@ export default class Header extends React.Component {
                        height='125'/>
                   <img className='d-none dlogo' style={{position: 'relative', maxWidth: '90%', objectFit: 'contain', paddingRight: '10px', height: '75px'}} alt='Staking DAPP' src='/img/dlogo.svg'
                        height='125'/>
-                  {' '}<p className="header-title-1" style={{ paddingLeft: '10px', marginTop: 'auto' }}>ETH Governance</p>
+                  {/* {' '}<p className="header-title-1" style={{ paddingLeft: '10px', marginTop: 'auto' }}>ETH Governance</p> */}
                 </a>
               </h2>
             </div>
