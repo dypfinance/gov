@@ -235,8 +235,8 @@ const ProposalCard = (props) => (
             {moment
               .duration(
                 props._proposalStartTime * 1e3 +
-                  window.config.vote_duration_in_seconds * 1e3 -
-                  Date.now()
+                window.config.vote_duration_in_seconds * 1e3 -
+                Date.now()
               )
               .humanize(true)}
           </p>
@@ -269,7 +269,7 @@ export default class Governance extends React.Component {
     this.state = {
       proposals: [],
       total_proposals: 0,
-      isLoading: true,
+      isLoading: false,
       token_balance: "",
       totalDeposited: "",
       lastVotedProposalStartTime: "",
@@ -279,31 +279,31 @@ export default class Governance extends React.Component {
   }
 
   refreshProposals = async () => {
-    if (this.state.is_wallet_connected === true) {
-      if (this.state.isLoading && this.state.proposals.length > 0) return;
-      this.setState({ isLoading: true });
-      try {
-        let total_proposals = Number(await governance.lastIndex());
-        let proposals = this.state.proposals;
-        let newProposals = [];
-        let step = window.config.max_proposals_per_call;
-        for (
-          let i = total_proposals - proposals.length;
-          i >= Math.max(1, total_proposals - proposals.length - step + 1);
-          i--
-        ) {
-          newProposals.push(this.getProposal(i));
-        }
-        newProposals = await Promise.all(newProposals);
-        // newProposals = newProposals.map(p => {
-        //     p.vault = getVaultByAddress(p._stakingPool)
-        //     return p
-        // })
-        proposals = proposals.concat(newProposals);
-        this.setState({ total_proposals, proposals, isLoading: false });
-      } finally {
-        this.setState({ isLoading: false });
+    if (this.state.isLoading && this.state.proposals.length > 0) return;
+    this.setState({ isLoading: true });
+    try {
+      let total_proposals = Number(await governance.lastIndex());
+      let proposals = this.state.proposals;
+      let newProposals = [];
+      let step = window.config.max_proposals_per_call;
+      for (
+        let i = total_proposals - proposals.length;
+        i >= Math.max(1, total_proposals - proposals.length - step + 1);
+        i--
+      ) {
+        newProposals.push(this.getProposal(i));
       }
+      newProposals = await Promise.all(newProposals);
+
+      // newProposals = newProposals.map(p => {
+      //     p.vault = getVaultByAddress(p._stakingPool)
+      //     return p
+      // })
+      proposals = proposals.concat(newProposals);
+
+      this.setState({ total_proposals, proposals, isLoading: false });
+    } finally {
+      this.setState({ isLoading: false });
     }
   };
   getProposal = async (_proposalId) => {
@@ -321,7 +321,6 @@ export default class Governance extends React.Component {
     });
   };
   componentDidMount() {
-    this.refreshProposals();
     this.refreshBalance();
     this.checkConnection();
     this.getProposal();
@@ -333,6 +332,14 @@ export default class Governance extends React.Component {
 
   componentWillUnmount() {
     clearInterval(window.gRefBalInterval);
+  }
+  async shouldComponentUpdate(nextState) {
+    if (nextState.connected !== this.props.connected) {
+      await this.refreshProposals();
+      return true;
+    } else {
+      return false;
+    }
   }
 
   handleProposalSubmit = (formState) => (e) => {
@@ -428,6 +435,11 @@ export default class Governance extends React.Component {
     e.preventDefault();
     governance.withdrawAllTokens();
   };
+
+  handleProposals = async (e) => {
+    e.preventDefault();
+    await this.refreshProposals();
+  }
 
   render() {
     let { totalDeposited } = this.state;
@@ -814,6 +826,7 @@ class ProposalDetails extends React.Component {
   };
 
   render() {
+    ////
     let id = this.props.match.params.id;
 
     let { coinbase, token_balance, proposal, totalDeposited, depositedTokens } =
@@ -928,9 +941,8 @@ class ProposalDetails extends React.Component {
                       <div style={{ paddingRight: "0.3rem" }} className="col-6">
                         <button
                           onClick={() => this.handleSetOption("0")}
-                          className={`btn btn-block btn-primary l-light-btn ${
-                            this.state.option == "0" ? "btn-outline" : ""
-                          }`}
+                          className={`btn btn-block btn-primary l-light-btn ${this.state.option == "0" ? "btn-outline" : ""
+                            }`}
                           type="button"
                         >
                           <i
@@ -946,9 +958,8 @@ class ProposalDetails extends React.Component {
                       <div style={{ paddingLeft: "0.3rem" }} className="col-6">
                         <button
                           onClick={() => this.handleSetOption("1")}
-                          className={`btn btn-block btn-primary l-light-btn ${
-                            this.state.option == "1" ? "btn-outline" : ""
-                          }`}
+                          className={`btn btn-block btn-primary l-light-btn ${this.state.option == "1" ? "btn-outline" : ""
+                            }`}
                           type="button"
                         >
                           <i

@@ -64,7 +64,7 @@ class App extends React.Component {
                 <Connected />
               )}
             </div>
-            <Governance />
+            <Governance connected={this.state.is_wallet_connected} />
             </div>
           </div>
         </div>
