@@ -49,6 +49,7 @@ body {
   --box-bg: #fff;
   --white: #fff;
   --radio: #fde6e8;
+  --error: rgba(227, 6, 19, 0.1);
   --solid-btn-bg: #e30613;
   --solid-btn-hover-bg: #a00000;
   /* --light-blue: rgb(69, 203, 254); */
@@ -78,7 +79,7 @@ body.dark {
   --text-color: #fff;
   --box-bg: #28232c;
   --radio: #171318;
-
+  --error: rgba(227, 6, 19, 0.1);
   --white: #fff;
   --solid-btn-bg: #ff656e;
   --solid-btn-hover-bg: #ff4d58;
@@ -269,9 +270,9 @@ strong {
   margin-top: 3rem;
 }
 .vault-container {
-  max-width: 800px;
+  max-width: 325px;
   background: var(--box-bg);
-  margin: auto;
+  /* margin: auto; */
   margin-top: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
@@ -400,13 +401,35 @@ strong {
 .containertop {
     background: var(--box-bg);
     box-shadow: 8px 0px 24px rgb(0 0 0 / 6%);
-    /* margin: 60px 0 auto auto; */
+    margin: 60px 0 auto auto;
     border-radius: 6px;
     /* max-width: 550px; */
     padding-top: 24px;
 
 }
 
+.errorWrapper {
+  border-radius: 6px;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: left;
+  padding: 10px;
+  color: #F13227;
+  max-width: 450px;
+  background: var(--error);
+}
+
+.addProposal {
+  position: relative;
+  bottom: 119px;
+}
+
+.totalVoting {
+  height: 100%;
+  min-height: 111px;
+  margin-top: 20px;
+}
 
 button.connectWalletBTN {
   background: var(--box-bg);
@@ -452,6 +475,71 @@ button.connectWalletBTN {
   text-align: left !important;
 }
 
+.governanceWrapper {
+  bottom: 100px;
+  z-index: 2;
+  justify-content: center;
+}
+
+.proposalWrapper {
+  bottom: 111px;
+  z-index: 2;
+}
+
+.proposalcontainertop {
+  background: var(--box-bg);
+  box-shadow: 8px 0px 24px rgb(0 0 0 / 6%);
+  margin: 60px 0 auto auto;
+  border-radius: 6px;
+  max-width: 550px;
+  padding-top: 24px;
+}
+
+.buttonWrapper {
+  justify-content: space-between;
+}
+
+@media screen and (max-width: 1199px) {
+
+  .proposalcontainertop {
+    max-width: 100%;
+  }
+  .proposalWrapper {
+    bottom: auto;
+  }
+}
+
+@media screen and (max-width: 767px) {
+
+  .buttonWrapper {
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .totalVotingButton {
+    max-width: auto !important;
+  }
+
+  .withdrawButton {
+    max-width: auto !important;
+  }
+}
+
+@media screen and (max-width: 991px) {
+  .addProposal{
+    bottom: auto;
+    margin-top: 20px;
+  }
+
+  .governanceWrapper {
+    bottom: auto;
+  }
+}
+
+@media (max-width: 576px) {
+.container, .container-sm {
+    max-width: 540px;}
+}
 
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .bannerTitle {
@@ -501,6 +589,11 @@ button.connectWalletBTN {
   .header-title-1 {
     display: none;
   }
+
+  #votingWrapper {
+    flex-direction: column-reverse;
+  }
+
   .connectWallet {
     display: grid;
     justify-content: center;

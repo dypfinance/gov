@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import moment from "moment";
 import { NavLink, Route } from "react-router-dom";
 import Address from "./address";
-
+import Error from "../assets/error.svg";
 import getFormattedNumber from "../functions/get-formatted-number";
 import Boxes from "./boxes";
+
+import Skeleton from "@mui/material/Skeleton";
 
 const { new_governance: governance, reward_token, BigNumber } = window;
 
@@ -84,7 +86,7 @@ const AddProposal = (props) => {
   let { isOwner } = props;
   return (
     <div>
-      <div className="l-box">
+      <div className="l-box addProposal">
         <h3 style={{ textAlign: "left" }}>Submit a proposal</h3>
         <form onSubmit={props.onSubmit(formState)}>
           <div>
@@ -195,23 +197,30 @@ const AddProposal = (props) => {
 
 const ProposalCard = (props) => (
   <NavLink to={`/proposals/${props._proposalId}`}>
-    <div className="container vault-container">
-      <div className="row vault-row">
-        <div className="col-sm-2 col-md-1 text-center">
+    <div className="container vault-container d-flex">
+      <div className="row vault-row text-start">
+        <div
+          className="col-sm-8 col-md-8 text-center mb-2 d-flex align-items-center gap-3 justify-content-start"
+          style={{ gap: 10 }}
+        >
           <img
-            className="mb-3"
+            className="m-0"
             src={props.vault ? props.vault.logo : "/logo192.png"}
-            height="45"
-            width="45"
+            height="38"
+            width="38"
             style={{ objectFit: "contain" }}
           />
+          <div
+            style={{ whiteSpace: "pre-line", gap: 10 }}
+            className="col-sm-3 col-md-12 p-0 d-flex"
+          >
+            <span className="vault-name text-bold">
+              {props.vault ? props.vault.name : "DYP Proposal"}{" "}
+            </span>
+          </div>
         </div>
-        <div style={{ whiteSpace: "pre-line" }} className="col-sm-3 col-md-4">
-          <span className="vault-name text-bold">
-            {props.vault ? props.vault.name : "DYP Proposal"}{" "}
-          </span>
-        </div>
-        <div className="col-sm-4 text-muted small">
+
+        <div className="col-sm-12 text-left">
           {{
             0: "Disburse / Burn",
             1: "Upgrade Governance",
@@ -220,7 +229,7 @@ const ProposalCard = (props) => (
             4: "Change Min Balance",
           }[props._proposalAction] || ""}
         </div>
-        <div className="col-sm-3 text-right">
+        <div className="col-sm-7 text-left">
           <h4>Expires</h4>
           <p className="text-muted small">
             {moment
@@ -297,18 +306,31 @@ export default class Governance extends React.Component {
       }
     }
   };
-
   getProposal = async (_proposalId) => {
-    let p = await governance.getProposal(_proposalId);
-    p.vault = getPoolForProposal(p);
-    return p;
+    if (this.state.is_wallet_connected === true) {
+      let p = await governance.getProposal(_proposalId);
+      p.vault = getPoolForProposal(p);
+      return p;
+    }
   };
-
+  checkConnection = async () => {
+    let test = await window.web3.eth?.getAccounts().then((data) => {
+      data.length === 0
+        ? this.setState({ is_wallet_connected: false })
+        : this.setState({ is_wallet_connected: true });
+    });
+  };
   componentDidMount() {
     this.refreshProposals();
     this.refreshBalance();
+    this.checkConnection();
+    this.getProposal();
+    window._refreshBalInterval = setInterval(this.checkConnection, 1000);
+    // window._refreshBalInterval = setInterval(this.getProposal, 3000);
+    // window._refreshBalInterval = setInterval(this.refreshProposals, 3000);
     window.gRefBalInterval = setInterval(this.refreshBalance, 7e3);
   }
+
   componentWillUnmount() {
     clearInterval(window.gRefBalInterval);
   }
@@ -427,38 +449,97 @@ export default class Governance extends React.Component {
     let isOwner =
       String(this.state.coinbase).toLowerCase() ==
       window.config.admin_address.toLowerCase();
-
+    const deviceWidth = window.innerWidth;
     return (
       <div>
-        <div className="container p-0">
+        <div
+          className={
+            deviceWidth < 500 ? "container-fluid" : "container-fluid p-0"
+          }
+        >
           <Route exact path="/">
             <div
-              className="row pb-5"
+              className="row pb-5 m-0"
               style={{ flexDirection: "column-reverse" }}
             >
-              <div className="col-lg-12">
-                <h3>GOVERNANCE PROPOSALS</h3>
-                {this.state.proposals.map((props, i) => (
-                  <ProposalCard {...props} key={i} />
-                ))}
+
+              <div
+                className={`col-lg-12 p-0 governanceWrapper ${
+                  this.state.proposals.length > 0 && "d-flex flex-wrap"
+                }`}
+              >  
+                {this.state.is_wallet_connected === undefined && (
+                  <div className="errorWrapper">
+                    <img src={Error} alt="error" />
+                    <span>
+                      You need to connect your wallet in order to see the
+                      proposals
+                    </span>
+                  </div>
+                )}
+          {/* <h2 className="mb-4 d-flex mt-4">Governance proposals</h2> */}
+              
+                {this.state.is_wallet_connected === true ? (
+                  this.state.proposals.map((props, i) => (
+                    <div className="col-lg-3">
+                      <ProposalCard {...props} key={i} />
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-lg-12 row justify-content-between p-0 ml-0">
+                    <div className="l-box col-lg-3 mt-3">
+                      <Skeleton variant="text" /> <br />
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <br />
+                      <Skeleton
+                        variant="rectangular"
+                        width={"100%"}
+                        height={118}
+                      />
+                    </div>
+
+                    <div className="l-box col-lg-3 mt-3">
+                      <Skeleton variant="text" /> <br />
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <br />
+                      <Skeleton
+                        variant="rectangular"
+                        width={"100%"}
+                        height={118}
+                      />
+                    </div>
+
+                    <div className="l-box col-lg-3 mt-3">
+                      <Skeleton variant="text" /> <br />
+                      <Skeleton variant="circular" width={40} height={40} />
+                      <br />
+                      <Skeleton
+                        variant="rectangular"
+                        width={"100%"}
+                        height={118}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-center">
                   {this.state.proposals.length < this.state.total_proposals && (
-                    <button
-                      className="btn btn-primary l-outline-btn bgt"
-                      style={{
-                        color: "var(--solid-btn-bg)",
-                        fontSize: ".8rem",
-                        background: "transparent",
-                      }}
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        this.refreshProposals();
-                      }}
-                    >
-                      {this.state.isLoading ? "LOADING..." : "LOAD MORE"}
-                    </button>
-                  )}
+                  <button
+                    className="btn btn-primary l-outline-btn bgt"
+                    style={{
+                      color: "var(--solid-btn-bg)",
+                      fontSize: ".8rem",
+                      background: "transparent",
+                    }}
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      this.refreshProposals();
+                    }}
+                  >
+                    {this.state.isLoading ? "LOADING..." : "LOAD MORE"}
+                  </button>
+                   )}
 
                   {!this.state.isLoading && this.state.proposals.length == 0 && (
                     <div className="pt-5">
@@ -468,8 +549,13 @@ export default class Governance extends React.Component {
                 </div>
               </div>
               <div
-                className="col-lg-12"
-                style={{ display: "flex", justifyContent: "space-between" }}
+                className="col-lg-12 p-0"
+                id="votingWrapper"
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 20,
+                }}
               >
                 <AddProposal
                   isOwner={isOwner}
@@ -478,10 +564,7 @@ export default class Governance extends React.Component {
                   }
                   onSubmit={this.handleProposalSubmit}
                 />
-                <div
-                  className="l-box col-lg-5"
-                  style={{ minHeight: 111, height: "100%" }}
-                >
+                <div className="l-box col-lg-7 totalVoting">
                   <form className="" onSubmit={this.handleClaim}>
                     <div className="form-group">
                       <label
@@ -490,9 +573,9 @@ export default class Governance extends React.Component {
                       >
                         Total in voting
                       </label>
-                      <div className="row justify-content-between">
+                      <div className="row buttonWrapper">
                         <div
-                          className="form-row"
+                          className="form-row totalVotingButton"
                           style={{
                             maxWidth: 180,
                             width: "100%",
@@ -525,7 +608,7 @@ export default class Governance extends React.Component {
                         <button
                           title={withdrawableTitleText}
                           disabled={!canWithdrawAll}
-                          className="btn btn-primary btn-block l-outline-btn"
+                          className="btn btn-primary btn-block l-outline-btn withdrawButton"
                           type="submit"
                           style={{ maxWidth: 180 }}
                         >
@@ -576,10 +659,15 @@ class ProposalDetails extends React.Component {
   }
   componentDidMount() {
     this.refreshBalance();
+    this.refreshProposal();
+    // this.getProposal()
+    this.checkConnection();
+    window._refreshBalInterval = setInterval(this.checkConnection, 3000);
     window._refreshVoteBalInterval = setInterval(this.refreshBalance, 3000);
   }
 
   componentWillUnmount() {
+    // this.checkConnection();
     clearInterval(window._refreshVoteBalInterval);
   }
 
@@ -781,7 +869,7 @@ class ProposalDetails extends React.Component {
     return (
       <div className="token-staking">
         <div className="row">
-          <div className="col-lg-6">
+          <div className="col-lg-6 proposalWrapper">
             <div className="row token-staking-form">
               <div className="col-12">
                 <div className="l-box">
@@ -791,8 +879,21 @@ class ProposalDetails extends React.Component {
                         htmlFor="deposit-amount"
                         className="d-block text-left"
                       >
-                        ADD VOTES
+                        Add votes
                       </label>
+                      <h5
+                        className=""
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 20,
+                          fontWeight: 600,
+                          marginBottom: 20,
+                        }}
+                      >
+                        <img height={38} src={proposal.vault.logo.toString()} />{" "}
+                        {proposal.vault.name.toString()}
+                      </h5>
                       <div className="input-group ">
                         <input
                           value={
@@ -953,57 +1054,56 @@ class ProposalDetails extends React.Component {
                       >
                         Total in voting
                       </label>
-                      <div className="form-row">
-                        <div className="col-12">
-                          <p
-                            className="form-control  text-right"
-                            style={{
-                              border: "none",
-                              marginBottom: 0,
-                              paddingLeft: 0,
-                              background: "transparent",
-                              color: "var(--text-color)",
-                            }}
-                          >
-                            <span
+                      <div className="row buttonWrapper">
+                        <div
+                          className="form-row totalVotingButton"
+                          style={{
+                            maxWidth: 180,
+                            width: "100%",
+                          }}
+                        >
+                          <div className="col-12">
+                            <p
+                              className="form-control  text-right"
                               style={{
+                                border: "none",
                                 fontSize: "1.2rem",
+                                marginBottom: 0,
+                                paddingLeft: 0,
+                                background: "rgba(82, 168, 164, 0.2)",
                                 color: "var(--text-color)",
                               }}
                             >
-                              {totalDeposited}
-                            </span>{" "}
-                            <small className="text-bold">DYP</small>
-                          </p>
+                              <span
+                                style={{
+                                  fontSize: "1.2rem",
+                                  color: "var(--text-color)",
+                                }}
+                              >
+                                {totalDeposited}
+                              </span>{" "}
+                              <small className="text-bold">DYP</small>
+                            </p>
+                          </div>
                         </div>
+
+                        <button
+                          title={withdrawableTitleText}
+                          disabled={!canWithdrawAll}
+                          className="btn btn-primary btn-block l-outline-btn withdrawButton"
+                          type="submit"
+                          style={{ maxWidth: 180 }}
+                        >
+                          Withdraw all
+                        </button>
                       </div>
                     </div>
-                    <button
-                      title={withdrawableTitleText}
-                      disabled={!canWithdrawAll}
-                      className="btn btn-primary btn-block l-outline-btn"
-                      type="submit"
-                    >
-                      Withdraw all
-                    </button>
                   </form>
                 </div>
               </div>
             </div>
           </div>
-          <div className="col-lg-6">
-            <Boxes
-              items={[
-                {
-                  title: "My DYP Balance",
-                  number: token_balance + " DYP",
-                },
-                {
-                  title: `My ${this.getOptionText(this.state.option)} Votes`,
-                  number: depositedTokens + " DYP",
-                },
-              ]}
-            />
+          <div className="col-lg-6 mt-4">
             <div className="l-box">
               <div className="table-responsive">
                 <h3
@@ -1011,6 +1111,7 @@ class ProposalDetails extends React.Component {
                     fontSize: "1.1rem",
                     fontWeight: "600",
                     padding: ".3rem",
+                    display: "flex",
                   }}
                 >
                   PROPOSAL DETAILS
@@ -1026,7 +1127,7 @@ class ProposalDetails extends React.Component {
                 <table className="table-stats table table-sm table-borderless">
                   <tbody>
                     <tr>
-                      <th>Pool</th>
+                      <th className="d-flex">Pool</th>
                       <td className="text-right">
                         <strong>
                           {proposal.vault
@@ -1037,21 +1138,37 @@ class ProposalDetails extends React.Component {
                       </td>
                     </tr>
                     <tr>
-                      <th>Proposal Action</th>
+                      <th className="d-flex">My DYP Balance</th>
+                      <td className="text-right">
+                        <strong>{token_balance + " DYP"}</strong>{" "}
+                        <small></small>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="d-flex">{`My ${this.getOptionText(
+                        this.state.option
+                      )} Votes`}</th>
+                      <td className="text-right">
+                        <strong>{depositedTokens + " DYP"}</strong>{" "}
+                        <small></small>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th className="d-flex">Proposal Action</th>
                       <td className="text-right">
                         <strong>{actionText}</strong> <small></small>
                       </td>
                     </tr>
 
                     <tr>
-                      <th>Expires</th>
+                      <th className="d-flex">Expires</th>
                       <td className="text-right">
                         <strong>{expires}</strong> <small></small>
                       </td>
                     </tr>
                     {proposal._proposalAction == "1" && (
                       <tr>
-                        <th>New Gov. Address</th>
+                        <th className="d-flex">New Gov. Address</th>
                         <td className="text-right">
                           <Address
                             style={{ fontFamily: "monospace" }}
@@ -1062,7 +1179,7 @@ class ProposalDetails extends React.Component {
                     )}
                     {proposal._proposalAction == "2" && (
                       <tr>
-                        <th>New Quorum</th>
+                        <th className="d-flex">New Quorum</th>
                         <td className="text-right">
                           <strong>
                             {getFormattedNumber(proposal._newQuorum / 1e18, 6)}
@@ -1073,7 +1190,7 @@ class ProposalDetails extends React.Component {
                     )}
                     {proposal._proposalAction == "4" && (
                       <tr>
-                        <th>New Min Balance</th>
+                        <th className="d-flex">New Min Balance</th>
                         <td className="text-right">
                           <strong>
                             {getFormattedNumber(
@@ -1086,7 +1203,7 @@ class ProposalDetails extends React.Component {
                       </tr>
                     )}
                     <tr>
-                      <th>My Address</th>
+                      <th className="d-flex">My Address</th>
                       <td className="text-right">
                         <Address
                           style={{ fontFamily: "monospace" }}
@@ -1095,7 +1212,7 @@ class ProposalDetails extends React.Component {
                       </td>
                     </tr>
                     <tr>
-                      <th>Contract Address</th>
+                      <th className="d-flex">Contract Address</th>
                       <td className="text-right">
                         <Address
                           style={{ fontFamily: "monospace" }}
@@ -1105,28 +1222,34 @@ class ProposalDetails extends React.Component {
                     </tr>
 
                     <tr>
-                      <th>My DYP Balance</th>
+                      <th className="d-flex">My DYP Balance</th>
                       <td className="text-right">
                         <strong>{token_balance}</strong> <small>DYP</small>
                       </td>
                     </tr>
 
                     <tr>
-                      <th>{this.getOptionText("0")} Votes </th>
+                      <th className="d-flex">
+                        {this.getOptionText("0")} Votes{" "}
+                      </th>
                       <td className="text-right">
                         <strong>{optionOneVotes}</strong> <small>DYP</small>
                       </td>
                     </tr>
 
                     <tr>
-                      <th>{this.getOptionText("1")} Votes </th>
+                      <th className="d-flex">
+                        {this.getOptionText("1")} Votes{" "}
+                      </th>
                       <td className="text-right">
                         <strong>{optionTwoVotes}</strong> <small>DYP</small>
                       </td>
                     </tr>
 
                     <tr>
-                      <th>My {this.getOptionText(this.state.option)} Votes </th>
+                      <th className="d-flex">
+                        My {this.getOptionText(this.state.option)} Votes{" "}
+                      </th>
                       <td className="text-right">
                         <strong>{depositedTokens}</strong> <small>DYP</small>
                       </td>

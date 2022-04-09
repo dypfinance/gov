@@ -5,9 +5,7 @@ import Connected from "./components/Connected";
 //import Governance from './components/governance'
 import Governance from "./components/governance-new";
 import Header from "./components/header";
-import EthHero from './assets/ethHero.svg'
-
-
+import EthHero from "./assets/eth img.png";
 
 class App extends React.Component {
   constructor(props) {
@@ -35,7 +33,6 @@ class App extends React.Component {
       window.alertify.error(String(e));
     }
   };
-
   render() {
     return (
       <div className="App text-center">
@@ -45,30 +42,30 @@ class App extends React.Component {
         />
         <div className="container App-container p-0">
           <div className="">
-            <div className="container-fluid p-0">
+            <div className= "container-fluid p-0">
               <div className="exchangeWrapper">
                 <div className="innerBanner">
                   <h1 className="bannerTitle">ETH Governance</h1>
                   <p className="bannerSubTitle">Give your proposals</p>
                 </div>
-                <div style={{display: 'flex', alignItems: 'flex-end'}}>
-                <img src={EthHero} alt='ethHero' id="ethHero"/>
+                <div style={{ display: "flex", alignItems: "flex-end" }}>
+                  <img src={EthHero} alt="ethHero" id="ethHero" />
                 </div>
               </div>
-            
-              
-                <div className="containertop container containertop">
-                  <span style={{display: 'flex'}}>My Wallet</span> 
-              {this.state.is_wallet_connected === false ? (  <>
-                <NotConnected handleConnection={this.handleConnection} />
+            </div>
+            <div className="container p-0">
+            <div className={"containertop col-lg-7"}>
+              <span style={{ display: "flex" }}>My Wallet</span>
+              {this.state.is_wallet_connected === false ? (
+                <>
+                  <NotConnected handleConnection={this.handleConnection} />
                 </>
-                
               ) : (
-                <Connected />)}
-                </div>
-              
+                <Connected />
+              )}
             </div>
             <Governance />
+            </div>
           </div>
         </div>
         <Footer />
