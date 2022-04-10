@@ -508,7 +508,7 @@ button.connectWalletBTN {
 }
 
 .proposalWrapper {
-  bottom: 111px;
+  bottom: 123px;
   z-index: 2;
 }
 
@@ -530,7 +530,14 @@ button.connectWalletBTN {
     max-width: 100%;
   }
   .proposalWrapper {
-    bottom: auto;
+    bottom: 150px;
+  }
+}
+
+@media screen and (max-width: 991px) {
+
+  .proposalWrapper {
+    bottom: inherit;
   }
 }
 
@@ -560,8 +567,8 @@ button.connectWalletBTN {
   }
 }
 
-@media (max-width: 576px) {
-  .container,
+@media (max-width: 991px) {
+  .vault-container,
   .container-sm {
     max-width: 540px;
   }
@@ -756,27 +763,4 @@ h3 {
   background: url(../img/switch.svg);
   width: 28px;
   height: 28px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  top: 2px;
-}
-
-.ui-switcher[aria-checked="true"] {
-  background: #161218;
-}
-
-.ui-switcher[aria-checked="true"]:after {
-  left: 34px;
-  background: url(../img/su.svg);
-  background-position-x: 0%;
-  background-position-y: 0%;
-  background-repeat: repeat;
-  background-size: auto;
-  width: 28px;
-  height: 28px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  top: 2px;
 }

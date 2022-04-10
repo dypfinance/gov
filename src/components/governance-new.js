@@ -883,8 +883,8 @@ class ProposalDetails extends React.Component {
 
     return (
       <div className="token-staking">
-        <div className="row">
-          <div className="col-lg-6 proposalWrapper">
+        <div className="row justify-content-between">
+          <div className="col-lg-5 mt-5 proposalWrapper">
             <div className="row token-staking-form">
               <div className="col-12">
                 <div className="l-box">
@@ -1116,7 +1116,7 @@ class ProposalDetails extends React.Component {
               </div>
             </div>
           </div>
-          <div className="col-lg-6 mt-4">
+          <div className="col-lg-7 pl-0 mt-4">
             <div className="l-box">
               <div className="table-responsive">
                 <h3
