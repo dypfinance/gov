@@ -4,8 +4,8 @@ import { NavLink, Route } from "react-router-dom";
 import Address from "./address";
 import Error from "../assets/error.svg";
 import getFormattedNumber from "../functions/get-formatted-number";
-import Boxes from "./boxes";
-
+import Fire from "../assets/fire.svg";
+import ArrowButton from "../assets/arrowButton.svg";
 import Skeleton from "@mui/material/Skeleton";
 
 const { new_governance: governance, reward_token, BigNumber } = window;
@@ -86,8 +86,10 @@ const AddProposal = (props) => {
   let { isOwner, connected } = props;
   return (
     <div>
-      <div className="l-box addProposal" 
-        style={{ marginTop: connected ? 43 : 0}}>
+      <div
+        className="l-box addProposal"
+        style={{ marginTop: connected ? 43 : 0 }}
+      >
         <h3 style={{ textAlign: "left" }}>Submit a proposal</h3>
         <form onSubmit={props.onSubmit(formState)}>
           <div>
@@ -199,7 +201,7 @@ const AddProposal = (props) => {
 const ProposalCard = (props) => (
   <NavLink to={`/proposals/${props._proposalId}`}>
     <div className="container vault-container d-flex">
-      <div className="row vault-row text-start">
+      <div className="row vault-row text-start justify-content-between">
         <div
           className="col-sm-8 col-md-8 text-center mb-2 d-flex align-items-center gap-3 justify-content-start"
           style={{ gap: 10 }}
@@ -221,7 +223,7 @@ const ProposalCard = (props) => (
           </div>
         </div>
 
-        <div className="col-sm-12 text-left">
+        <div className="col-sm-10 text-left actionText">
           {{
             0: "Disburse / Burn",
             1: "Upgrade Governance",
@@ -230,18 +232,37 @@ const ProposalCard = (props) => (
             4: "Change Min Balance",
           }[props._proposalAction] || ""}
         </div>
-        <div className="col-sm-7 text-left">
-          <h4>Expires</h4>
-          <p className="text-muted small">
+
+        <div className="col-sm-7 text-left ExpireWrapper d-flex justify-content-center">
+          <p
+            style={{
+              fontSize: 12,
+              marginBottom: 0,
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <img src={Fire} alt="fire" className="mr-0" />
+            Expires
+          </p>
+          <p
+            style={{ fontSize: 14, color: "var(--solid-btn-bg)" }}
+            className="text-muted small mb-0 d-flex justify-content-center"
+          >
             {moment
               .duration(
                 props._proposalStartTime * 1e3 +
-                window.config.vote_duration_in_seconds * 1e3 -
-                Date.now()
+                  window.config.vote_duration_in_seconds * 1e3 -
+                  Date.now()
               )
               .humanize(true)}
           </p>
-        </div>
+         
+        </div> <img
+            src={ArrowButton}
+            alt="arrowbutton"
+            style={{ width: 30, margin: 0, position: 'relative', right: 12 }}
+          />
       </div>
     </div>
   </NavLink>
@@ -440,7 +461,7 @@ export default class Governance extends React.Component {
   handleProposals = async (e) => {
     e.preventDefault();
     await this.refreshProposals();
-  }
+  };
 
   render() {
     let { totalDeposited } = this.state;
@@ -475,12 +496,11 @@ export default class Governance extends React.Component {
               className="row pb-5 m-0"
               style={{ flexDirection: "column-reverse" }}
             >
-
               <div
                 className={`col-lg-12 p-0 governanceWrapper ${
                   this.state.proposals.length > 0 && "d-flex flex-wrap"
                 }`}
-              >  
+              >
                 {this.state.is_wallet_connected === undefined && (
                   <div className="errorWrapper">
                     <img src={Error} alt="error" />
@@ -490,8 +510,8 @@ export default class Governance extends React.Component {
                     </span>
                   </div>
                 )}
-          {/* <h2 className="mb-4 d-flex mt-4">Governance proposals</h2> */}
-              
+                {/* <h2 className="mb-4 d-flex mt-4">Governance proposals</h2> */}
+
                 {this.state.is_wallet_connected === true ? (
                   this.state.proposals.map((props, i) => (
                     <div className="col-lg-3">
@@ -537,22 +557,22 @@ export default class Governance extends React.Component {
 
                 <div className="text-center">
                   {this.state.proposals.length < this.state.total_proposals && (
-                  <button
-                    className="btn btn-primary l-outline-btn bgt"
-                    style={{
-                      color: "var(--solid-btn-bg)",
-                      fontSize: ".8rem",
-                      background: "transparent",
-                    }}
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      this.refreshProposals();
-                    }}
-                  >
-                    {this.state.isLoading ? "LOADING..." : "LOAD MORE"}
-                  </button>
-                   )}
+                    <button
+                      className="btn btn-primary l-outline-btn bgt"
+                      style={{
+                        color: "var(--solid-btn-bg)",
+                        fontSize: ".8rem",
+                        background: "transparent",
+                      }}
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        this.refreshProposals();
+                      }}
+                    >
+                      {this.state.isLoading ? "LOADING..." : "LOAD MORE"}
+                    </button>
+                  )}
 
                   {!this.state.isLoading && this.state.proposals.length == 0 && (
                     <div className="pt-5">
@@ -821,8 +841,10 @@ class ProposalDetails extends React.Component {
   handleSetOption = (option) => {
     if (Number(this.state.depositedTokens) > 0) return;
     this.setState({ option });
-    localStorage.setItem('NoVoteseth', getFormattedNumber(this.state.proposal._optionTwoVotes / 1e18, 6) );
-
+    localStorage.setItem(
+      "NoVoteseth",
+      getFormattedNumber(this.state.proposal._optionTwoVotes / 1e18, 6)
+    );
   };
 
   handleExecute = () => {
@@ -945,8 +967,9 @@ class ProposalDetails extends React.Component {
                       <div style={{ paddingRight: "0.3rem" }} className="col-6">
                         <button
                           onClick={() => this.handleSetOption("0")}
-                          className={`btn btn-block btn-primary l-light-btn ${this.state.option == "0" ? "btn-outline" : ""
-                            }`}
+                          className={`btn btn-block btn-primary l-light-btn ${
+                            this.state.option == "0" ? "btn-outline" : ""
+                          }`}
                           type="button"
                         >
                           <i
@@ -962,8 +985,9 @@ class ProposalDetails extends React.Component {
                       <div style={{ paddingLeft: "0.3rem" }} className="col-6">
                         <button
                           onClick={() => this.handleSetOption("1")}
-                          className={`btn btn-block btn-primary l-light-btn ${this.state.option == "1" ? "btn-outline" : ""
-                            }`}
+                          className={`btn btn-block btn-primary l-light-btn ${
+                            this.state.option == "1" ? "btn-outline" : ""
+                          }`}
                           type="button"
                         >
                           <i
@@ -1254,7 +1278,6 @@ class ProposalDetails extends React.Component {
                       </td>
                     </tr>
 
-                   
                     <tr>
                       <td
                         colSpan="2"
