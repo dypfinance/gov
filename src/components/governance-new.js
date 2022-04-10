@@ -83,10 +83,11 @@ const AddProposal = (props) => {
   });
 
   const setState = (obj) => setFormState({ ...formState, ...obj });
-  let { isOwner } = props;
+  let { isOwner, connected } = props;
   return (
     <div>
-      <div className="l-box addProposal">
+      <div className="l-box addProposal" 
+        style={{ marginTop: connected ? 43 : 0}}>
         <h3 style={{ textAlign: "left" }}>Submit a proposal</h3>
         <form onSubmit={props.onSubmit(formState)}>
           <div>
@@ -571,6 +572,7 @@ export default class Governance extends React.Component {
               >
                 <AddProposal
                   isOwner={isOwner}
+                  connected={this.state.is_wallet_connected}
                   MIN_BALANCE_TO_INIT_PROPOSAL={
                     this.state.MIN_BALANCE_TO_INIT_PROPOSAL
                   }

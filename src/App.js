@@ -42,7 +42,7 @@ class App extends React.Component {
         />
         <div className="container App-container p-0">
           <div className="">
-            <div className= "container-fluid p-0">
+            <div className="container-fluid p-0">
               <div className="exchangeWrapper">
                 <div className="innerBanner">
                   <h1 className="bannerTitle">ETH Governance</h1>
@@ -54,17 +54,20 @@ class App extends React.Component {
               </div>
             </div>
             <div className="container p-0">
-            <div className={"containertop col-lg-7"}>
-              <span style={{ display: "flex" }}>My Wallet</span>
-              {this.state.is_wallet_connected === false ? (
-                <>
-                  <NotConnected handleConnection={this.handleConnection} />
-                </>
-              ) : (
-                <Connected />
-              )}
-            </div>
-            <Governance connected={this.state.is_wallet_connected} />
+              <div className={`${!this.state.is_wallet_connected 
+                                  ? 'containertop' 
+                                  : 'connectWallet-blue d-block d-md-flex'} 
+                  col-lg-7`}>
+                {this.state.is_wallet_connected === false ? (
+                  <>
+                    <span style={{ display: "flex" }}>My Wallet</span>
+                    <NotConnected handleConnection={this.handleConnection} />
+                  </>
+                ) : (
+                  <Connected />
+                )}
+              </div>
+              <Governance connected={this.state.is_wallet_connected} />
             </div>
           </div>
         </div>
