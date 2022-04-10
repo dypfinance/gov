@@ -821,6 +821,8 @@ class ProposalDetails extends React.Component {
   handleSetOption = (option) => {
     if (Number(this.state.depositedTokens) > 0) return;
     this.setState({ option });
+    localStorage.setItem('NoVoteseth', getFormattedNumber(this.state.proposal._optionTwoVotes / 1e18, 6) );
+
   };
 
   handleExecute = () => {
@@ -1151,13 +1153,6 @@ class ProposalDetails extends React.Component {
                       </td>
                     </tr>
                     <tr>
-                      <th className="d-flex">My DYP Balance</th>
-                      <td className="text-right">
-                        <strong>{token_balance + " DYP"}</strong>{" "}
-                        <small></small>
-                      </td>
-                    </tr>
-                    <tr>
                       <th className="d-flex">{`My ${this.getOptionText(
                         this.state.option
                       )} Votes`}</th>
@@ -1259,14 +1254,7 @@ class ProposalDetails extends React.Component {
                       </td>
                     </tr>
 
-                    <tr>
-                      <th className="d-flex">
-                        My {this.getOptionText(this.state.option)} Votes{" "}
-                      </th>
-                      <td className="text-right">
-                        <strong>{depositedTokens}</strong> <small>DYP</small>
-                      </td>
-                    </tr>
+                   
                     <tr>
                       <td
                         colSpan="2"
