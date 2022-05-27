@@ -292,6 +292,7 @@ export default class Governance extends React.Component {
       proposals: [],
       total_proposals: 0,
       isLoading: false,
+      is_wallet_connected: false,
       token_balance: "",
       totalDeposited: "",
       lastVotedProposalStartTime: "",
@@ -307,13 +308,20 @@ export default class Governance extends React.Component {
       let total_proposals = Number(await governance.lastIndex());
       let proposals = this.state.proposals;
       let newProposals = [];
+      let newProposals2 = [];
       let step = window.config.max_proposals_per_call;
       for (
         let i = total_proposals - proposals.length;
         i >= Math.max(1, total_proposals - proposals.length - step + 1);
         i--
       ) {
-        newProposals.push(this.getProposal(i));
+        const checkproposal = await this.getProposal(i).then()
+        if(checkproposal != undefined) {
+          newProposals.push(this.getProposal(i));
+      }
+      else {
+          this.refreshProposals();
+      }
       }
       newProposals = await Promise.all(newProposals);
 
@@ -321,9 +329,10 @@ export default class Governance extends React.Component {
       //     p.vault = getVaultByAddress(p._stakingPool)
       //     return p
       // })
-      proposals = proposals.concat(newProposals);
+      newProposals2 = proposals.concat(newProposals);
 
-      this.setState({ total_proposals, proposals, isLoading: false });
+      this.setState({ total_proposals, isLoading: false });
+      this.setState({proposals: newProposals2})
     } finally {
       this.setState({ isLoading: false });
     }
@@ -346,7 +355,7 @@ export default class Governance extends React.Component {
     this.refreshBalance();
     this.checkConnection();
     this.getProposal();
-    window._refreshBalInterval = setInterval(this.checkConnection, 1000);
+    window._refreshBalInterval = setInterval(this.checkConnection, 500);
     // window._refreshBalInterval = setInterval(this.getProposal, 3000);
     // window._refreshBalInterval = setInterval(this.refreshProposals, 3000);
     window.gRefBalInterval = setInterval(this.refreshBalance, 7e3);
@@ -696,7 +705,7 @@ class ProposalDetails extends React.Component {
     this.refreshProposal();
     // this.getProposal()
     this.checkConnection();
-    window._refreshBalInterval = setInterval(this.checkConnection, 3000);
+    window._refreshBalInterval = setInterval(this.checkConnection, 500);
     window._refreshVoteBalInterval = setInterval(this.refreshBalance, 3000);
   }
 
@@ -712,9 +721,11 @@ class ProposalDetails extends React.Component {
   };
 
   getProposal = async (_proposalId) => {
+    if (this.state.is_wallet_connected === true) {
     let p = await governance.getProposal(_proposalId);
     p.vault = getPoolForProposal(p);
     return p;
+    }
   };
 
   handleApprove = (e) => {
