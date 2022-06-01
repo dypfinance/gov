@@ -45,8 +45,8 @@ class App extends React.Component {
             <div className="container-fluid p-0">
               <div className="exchangeWrapper">
                 <div className="innerBanner">
-                  <h1 className="bannerTitle">ETH Governance</h1>
-                  <p className="bannerSubTitle">Give your proposals</p>
+                  <h1 className="bannerTitle">Voting</h1>
+                  {/*<p className="bannerSubTitle">Give your proposals</p>*/}
                 </div>
                 <div style={{ display: "flex", alignItems: "flex-end" }}>
                   <img src={EthHero} alt="ethHero" id="ethHero" />
